@@ -3,3 +3,4 @@
 Resources
 
 http://www.cplusplus.com/reference/cstring/memcpy/
+http://www.cplusplus.com/reference/string/string/getline/
