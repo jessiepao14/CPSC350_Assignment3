@@ -10,11 +10,13 @@ bool isRepeat();
 
 int main(int argc, char const *argv[])
 {
+    bool error;
     SyntaxChecker check;
     welcome();
+    
     do {
-        check.checkFile();
-    } while (isRepeat());
+        error = check.checkFile(argv[1]);
+    } while (error && isRepeat());
 
     return 0;
 }

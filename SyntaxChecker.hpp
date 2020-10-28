@@ -21,10 +21,10 @@ class SyntaxChecker {
 
     public:
         SyntaxChecker();
-        void inputFile();
+        void inputFile(string fileName);
         void checkDelimiters(string currentLine);
         char getExpected(char bracket);
-        void checkFile();
+        bool checkFile(string fileName);
 
 };
 

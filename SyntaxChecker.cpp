@@ -13,28 +13,28 @@ SyntaxChecker::SyntaxChecker() {
     inBlockComment = false;
 }
 
-void SyntaxChecker::checkFile() {
-    inputFile();
+bool SyntaxChecker::checkFile(string fileName) {
+    inputFile(fileName);
 
     if (missingBracketFlag){
         cout << "Missing starting bracket for " << missingBracket << endl;
+        return false;
     } else if (expectedBracketFlag) {
         cout << "Line " << line << ": expected " << expectedBracketFlag << " and found " << error << endl;
+        return false;
     } else if (myStack.isEmpty()){
         cout << "No errors found" << endl;
+        return true;
     } else {
         cout << "Reached end of file: missing " << myStack.pop() << endl;
+        return false;
     }
 
 }
 
 
-void SyntaxChecker::inputFile(){
-    string fileName;
+void SyntaxChecker::inputFile(string fileName){
     string currentLine;
-
-    cout << "Please enter a file name: ";
-    cin >> fileName;
 
     ifstream inFile;
     inFile.open(fileName);
