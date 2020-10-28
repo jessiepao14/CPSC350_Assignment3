@@ -1,6 +1,8 @@
 #ifndef _SYNTAX_CHECKER_HPP_
 #define _SYNTAX_CHECKER_HPP_
 
+#include "GenStack.hpp"
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -11,13 +13,16 @@ class SyntaxChecker {
     private:
         int line;
         bool missingBracketFlag;
+        char missingBracket;
         char expectedBracketFlag;
         char error;
+        bool inBlockComment;
+        GenStack<char> myStack;
 
     public:
         SyntaxChecker();
-        int inputFile(); 
-        bool checkDelimiters(string currentLine);
+        void inputFile();
+        void checkDelimiters(string currentLine);
         char getExpected(char bracket);
         void checkFile();
 

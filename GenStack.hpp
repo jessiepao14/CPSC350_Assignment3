@@ -113,15 +113,19 @@ unsigned int GenStack<T>::getSize() {
 
 template <class T>
 void GenStack<T>::displayStack() {
-    cout << "Stack Size: " << numElements << endl;
-    cout << "Stack top: " << myStack[top] << endl;
-    for (int i = 0; i < top; ++i) {
-        cout << "S[" << i << "]: " << myStack[i];
-        if (i != mSize - 1) {
-            cout << " | ";
+    if (isEmpty()) {
+        cout << "Stack is Empty\n";
+    } else {
+        cout << "Stack Size: " << numElements << endl;
+        cout << "Stack top: " << myStack[top] << endl;
+        for (int i = 0; i < numElements; ++i) {
+            cout << "S[" << i << "]: " << myStack[i];
+            if (i != numElements - 1) {
+                cout << " | ";
+            }
         }
+        cout << endl;
     }
-    cout << endl;
 }
 
 #endif

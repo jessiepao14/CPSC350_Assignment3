@@ -1,5 +1,5 @@
 #include "SyntaxChecker.hpp"
-#include "GenStack.hpp"
+
 
 using namespace std;
 
@@ -7,23 +7,31 @@ using namespace std;
 SyntaxChecker::SyntaxChecker() {
     line = 0;
     missingBracketFlag = false;
+    missingBracket = '\0';
     expectedBracketFlag = '\0';
     error = 0;
+    inBlockComment = false;
 }
 
 void SyntaxChecker::checkFile() {
     inputFile();
 
-    if (error == 'e') {
+    if (missingBracketFlag){
+        cout << "Missing starting bracket for " << missingBracket << endl;
+    } else if (expectedBracketFlag) {
+        cout << "Line " << line << ": expected " << expectedBracketFlag << " and found " << error << endl;
+    } else if (myStack.isEmpty()){
         cout << "No errors found" << endl;
+    } else {
+        cout << "Reached end of file: missing " << myStack.pop() << endl;
     }
+
 }
 
 
-int SyntaxChecker::inputFile(){
+void SyntaxChecker::inputFile(){
     string fileName;
     string currentLine;
-    int line = 0;
 
     cout << "Please enter a file name: ";
     cin >> fileName;
@@ -36,90 +44,95 @@ int SyntaxChecker::inputFile(){
     }
     cout << fileName << " was read in." << endl;
 
-    while(getline(inFile, currentLine)) {
+    while (getline(inFile, currentLine) && !missingBracketFlag && !expectedBracketFlag) {
         cout << "Checking line: " << line << endl;
-        if (!checkDelimiters(currentLine)){     // check delimiters
-            return line;
-        }
+        checkDelimiters(currentLine);
         line++;
     }
-
+    //myStack.displayStack();
     inFile.close();
 
+    
 }
 
-bool SyntaxChecker::checkDelimiters(string currentLine) {
-    GenStack<char> myStack;
-    bool commentFlag = false;
+void SyntaxChecker::checkDelimiters(string currentLine) {
+    char prev = '\0';
+    bool lineCommentFlag = false;
+    bool openCommentFlag = false;
     bool quoteFlag = false;
     char current;
-
-    for (int i = 0; i < currentLine.length(); ++i) {
+    bool notComment;
+    for (int i = 0; i < currentLine.length() && !missingBracketFlag && expectedBracketFlag == '\0'; ++i) {
         current = currentLine[i];
 
-        if(current == '/') {
-            commentFlag = true;
-            return true;
-        } else if (commentFlag && current == '/'){
-            return true;
-        } else if (commentFlag && current == '*') {
-            // idk what to do with comment block
-        } else if (current == '"') {
+        // Check if String, Comment, or Comment Block
+        if (current == '"') {
             quoteFlag = true;
-        } else if (quoteFlag && current == '"') {
+        } else if (current == '"' and quoteFlag) {
             quoteFlag = false;
-        } else {
+        } else if (prev == '/' && current == '/') {
+            lineCommentFlag = true;
+        } else if (prev == '/' && current == '*') {
+            inBlockComment = true;
+        } else if (prev == '*' && current == '/' && inBlockComment) {
+            inBlockComment = false;
+        } else if (prev == '*' && current == '/' && !inBlockComment) {
+            // no starting comment
+        }
+
+        // Will check for () {} []
+        if (!quoteFlag && !lineCommentFlag && !inBlockComment) {
             if (current == '{' || current == '[' || current == '(') {
                 myStack.push(current);
             } else if (current == '}') {
-                if (myStack.isEmpty()){
+                if (myStack.isEmpty()) {
+                    missingBracket = current;
                     missingBracketFlag = true;
-                    return false;
-                } else if (myStack.stackTop() != '{') {
-                    expectedBracketFlag = getExpected(myStack.pop());
-                    return false;
+                } else if (myStack.stackTop() == '{') {
+                    myStack.pop();
+                } else {
+                    expectedBracketFlag = getExpected(myStack.stackTop());
+                    error = current;
                 }
             } else if (current == ']') {
-                if (myStack.isEmpty()){
+                if (myStack.isEmpty()) {
+                    missingBracket = current;
                     missingBracketFlag = true;
-                    return false;
-                } else if (myStack.stackTop() != '[') {
-                    expectedBracketFlag = getExpected(myStack.pop());
-                    return false;
+                } else if (myStack.stackTop() == '[') {
+                    myStack.pop();
+                } else {
+                    expectedBracketFlag = getExpected(myStack.stackTop());
+                    error = current;
                 }
-            } else if (current == ')'){
-                if (myStack.isEmpty()){
+            } else if (current == ')') {
+                if (myStack.isEmpty()) {
+                    missingBracket = current;
                     missingBracketFlag = true;
-                    return false;
-                } else if (myStack.stackTop() != '(') {
-                    expectedBracketFlag = getExpected(myStack.pop());
-                    return false;
+                } else if (myStack.stackTop() == '(') {
+                    myStack.pop();
+                } else {
+                    expectedBracketFlag = getExpected(myStack.stackTop());
+                    error = current;
                 }
             }
         }
-        return true;
+        prev = current;
     }
-    if (myStack.isEmpty())
-        error = 'e';
-    else if (myStack.pop() == '{')
-        error = '}';
-    else if (myStack.pop() == '[')
-        error = ']';
-    else if (myStack.pop() == '(')
-        error = ')';
 }
 
 char SyntaxChecker::getExpected(char bracket) {
+    char expected;
     if (bracket == '{')
-        return '}';
+        expected = '}';
     else if (bracket == '}')
-        return '{';
+        expected = '{';
     else if (bracket == '[')
-        return ']';
+        expected = ']';
     else if (bracket == ']')
-        return '[';
+        expected = '[';
     else if (bracket == '(')
-        return ')';
+        expected = ')';
     else if (bracket == ')')
-        return '(';
+        expected = '(';
+    return expected;
 }
