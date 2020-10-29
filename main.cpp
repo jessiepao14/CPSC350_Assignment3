@@ -7,16 +7,20 @@ using namespace std;
 
 void welcome();
 bool isRepeat();
+string getFileName();
 
 int main(int argc, char const *argv[])
 {
     bool error;
+    string fileName;
     SyntaxChecker check;
     welcome();
     
-    do {
-        error = check.checkFile(argv[1]);
-    } while (error && isRepeat());
+    error = check.checkFile(argv[1]);
+    while (error && isRepeat()) {
+        fileName = getFileName();
+        error = check.checkFile(fileName);
+    }
 
     return 0;
 }
@@ -34,4 +38,12 @@ bool isRepeat() {
     }
     return false;
 }
+
+string getFileName() {
+    string fileName;
+    cout << "Please enter the file you would like to check: " << endl;
+    cin >> fileName;
+    return fileName;
+}
+
 
