@@ -3,7 +3,11 @@
 
 using namespace std;
 
-
+/**************************
+ * SyntaxChecker()
+ * Default constructor
+ * initializes all of the variables
+ **************************/
 SyntaxChecker::SyntaxChecker() {
     line = 0;
     missingBracketFlag = false;
@@ -13,6 +17,11 @@ SyntaxChecker::SyntaxChecker() {
     inBlockComment = false;
 }
 
+/**************************
+ * checkFile(string fileName)
+ * receives a file and processes the 
+ * files to find errors
+ **************************/
 bool SyntaxChecker::checkFile(string fileName) {
     inputFile(fileName);
 
@@ -32,7 +41,11 @@ bool SyntaxChecker::checkFile(string fileName) {
 
 }
 
-
+/**************************
+ * inputFile(string fileName)
+ * receives a file and passes each line to get
+ * checked for delimiters
+ **************************/
 void SyntaxChecker::inputFile(string fileName){
     string currentLine;
 
@@ -54,7 +67,14 @@ void SyntaxChecker::inputFile(string fileName){
 
     
 }
-
+/**************************
+ * checkDelimiters(string currentLine)
+ * gets a line and parses through each character
+ * to determine if the character is a delimiter
+ * if it is an open delimiter it pushes the char to the stack
+ * if it is a matching closing delimiter it pops the opening delimiter out of the stack
+ * otherwise it processes the error
+  **************************/
 void SyntaxChecker::checkDelimiters(string currentLine) {
     char prev = '\0';
     bool lineCommentFlag = false;
@@ -119,7 +139,10 @@ void SyntaxChecker::checkDelimiters(string currentLine) {
         prev = current;
     }
 }
-
+/**************************
+ * getExpected(char bracket)
+ * returns the matching bracket
+**************************/
 char SyntaxChecker::getExpected(char bracket) {
     char expected;
     if (bracket == '{')
